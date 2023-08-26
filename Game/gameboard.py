@@ -1,7 +1,8 @@
-from Cards.card_base import CardCategory, CardType
+from Cards.card_base import CardCategory, CardType, dessert_types
 from game_parameters import default_counts
 from Game.hand import Hand, PlayedCards
 from Cards.deck import Deck
+from Cards.score_calculator import score_cards
 from numpy import argmax
 
 
@@ -11,7 +12,7 @@ Gameboard class - object which tracks game global variables, and has methods for
 
 
 class Gameboard:
-    def __init__(self, card_types, card_category_counts):
+    def __init__(self, card_types, card_category_counts=default_counts):
         # Global game vars:
         self.num_players = 2
         self.num_rounds = 3
@@ -56,7 +57,6 @@ class Gameboard:
     """
     def play_round(self, round: int):
         # Plays round, calcs scores, and resets deck at the end
-
         if round < self.num_rounds - 1:
             print('Round {} starting'.format(round))
         else:
@@ -72,11 +72,10 @@ class Gameboard:
         print('Scores are {}'.format(scores))
 
         # End of round:
-        # Reset the deck and append desserts:
-        self.deck.reset()
-        self.deck.append()
-        # Shuffle the hands:
-        self.hands = cycle_hands(self.hands)
+        # Reset the board (and consider desserts):
+        self.deck.reset(round)
+        for played_cards in self.played_cards:
+            played_cards.reset()
 
         print('Round {} over'.format(round))
         return scores
@@ -85,7 +84,7 @@ class Gameboard:
         # Collects player input for their round and changes gameboard accordingly
         # Show info:
         self.show_hands()
-        self.show_board()
+        self.show_played_cards()
 
         # Get player inputs:
         moves = []
@@ -98,7 +97,7 @@ class Gameboard:
         # Reveal and execute moves:
         for player in range(self.num_players):
             print('Player {} played {}'.format(player + 1, self.hands[player]))
-            # Trigger any special card effects
+            # Trigger any special card effects?
             move = moves[player]
             played_card = self.hands[player].cards.pop(move)
             self.played_cards[player].cards.append(played_card)
@@ -108,26 +107,23 @@ class Gameboard:
 
         # Increment turn timer:
         self.num_cards_remaining -= 1
+
+        # Cycle the hands:
+        self.hands = cycle_hands(self.hands)
         return
 
     """
-    Functions for calcing score
+    Functions for calculating score
     """
-
     def calc_scores(self, include_dessert=False):
         scores = []
         for player in range(self.num_players):
             score = 0
             for card_type in self.card_types:
-                # Scoring function - takes in what? Whole gameboard?
                 # Score for dessert is only counted in the final round
-                if card_type.card_category is not CardCategory.dessert:
+                if card_type not in dessert_types or include_dessert:
                     # Get corresponding card variety
-                    score += card_type.score(player, self.played_cards)
-                else:
-                    if include_dessert:
-                        # Get corresponding card variety
-                        score += card_type.score(player, self.played_cards)
+                    score += score_cards(card_type, self.played_cards[player])
             scores.append(score)
         return scores
 

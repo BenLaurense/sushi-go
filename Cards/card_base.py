@@ -2,10 +2,13 @@ from enum import Enum
 
 """
 Base class for card objects. A card object stores:
- - The scoring rule for that given card type is stored in the card object
+ - The CardType of the card
+ - The CardCategory fo the card
+ - The ScoringRule?
 """
 
 
+# There will be a nicer way of doing this! I could go full OO and have another layer of subclassing...
 class CardCategory(Enum):
     nigiri = 1
     rolls = 2
@@ -14,14 +17,23 @@ class CardCategory(Enum):
     dessert = 5
 
 
-# There will be a nicer way of doing this! I could go full OO and have another layer of subclassing...
 class CardType(Enum):
-    def __init__(self, category: CardCategory):
-        self.card_category = category
-    nigiri = 1 # does this work??
+    # Nigiri card types
+    nigiri = 1
     maki = 2
     temaki = 3
     uramaki = 4
+
+    # Rolls card types
+
+    # etc
+
+    # Dessert card types
+    pudding = 10
+    ice_cream = 11
+
+
+dessert_types = [CardType.pudding, CardType.ice_cream]
 
 
 class CardBase:
@@ -30,8 +42,4 @@ class CardBase:
         return
 
     def __str__(self):
-        raise NotImplementedError
-
-    def scoring_rule(self):
-        # Virtual method for scoring rule
         raise NotImplementedError

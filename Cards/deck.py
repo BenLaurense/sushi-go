@@ -1,13 +1,12 @@
 from Game.hand import Hand
 from Game.game_parameters import default_counts
-from card_base import CardType, CardCategory
-from card_builder import CardBuilder
+from card_base import CardType, CardCategory, dessert_types
+from card_build_rules import build_cards
 import random
 
 """
-Deck and deck-building classes
-
-build_deck takes a list of card types and produces a deck object
+Deck class
+ - build_deck method calls card_builder to build collection of cards of each CardType
 """
 
 
@@ -19,18 +18,26 @@ class Deck:
         self.cards = []  # This stores the INSTANTIATED card objects
 
         # Builds deck:
-        self.build_deck()
+        self.reset()
+        return
+
+    def reset(self, round=1):
+        self.build_deck(round)
         return
 
     """
     Build the deck from the chosen CardTypes and Counts
     """
-
-    def build_deck(self):
-        # Takes the cardtypes and constructs a deck
+    def build_deck(self, round):
+        # Takes the cardtypes and constructs a deck. Special rule for desserts
         self.cards = []
         for card_type in self.card_types:
-            cards = CardBuilder.build(card_type, self.category_counts[card_type])
+            if card_type not in dessert_types:
+                count = self.category_counts[card_type]
+            else:
+                count = self.category_counts[card_type][round - 1]
+
+            cards = build_cards(card_type, count)
             self.cards += cards
 
         self.shuffle()
@@ -43,9 +50,8 @@ class Deck:
         random.shuffle(self.cards)
         return
 
-    def append_and_shuffle(self, cards: list):
+    def append(self, cards: list):
         self.cards += cards
-        self.shuffle()
         return
 
     """
