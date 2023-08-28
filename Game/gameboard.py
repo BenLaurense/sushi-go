@@ -115,17 +115,6 @@ class Gameboard:
     """
     Functions for calculating score
     """
-    # def calc_scores(self, include_dessert=False) -> list[int]:
-    #     scores = []
-    #     for player in range(self.num_players):
-    #         score = 0
-    #         for card_type in self.card_type_dict:
-    #             # Score for dessert is only counted in the final round
-    #             if card_type not in dessert_types or include_dessert:
-    #                 # Get corresponding card variety
-    #                 score += score_cards(card_type, self.played_cards[player])
-    #         scores.append(score)
-    #     return scores
     def calc_scores(self,
                     include_dessert=False) -> list[int]:
         scores = []
