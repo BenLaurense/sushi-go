@@ -1,6 +1,6 @@
 from Cards.card_base import CardCategory, CardType, dessert_types
 from game_parameters import default_counts
-from Game.hand import Hand, PlayedCards
+from hand import Hand, PlayedCards
 from Cards.deck import Deck
 from Cards.score_calculator import score_cards
 from numpy import argmax
@@ -12,7 +12,9 @@ Gameboard class - object which tracks game global variables, and has methods for
 
 
 class Gameboard:
-    def __init__(self, card_types, card_category_counts=default_counts):
+    def __init__(self,
+                 card_types: dict[CardCategory, list[CardType]],
+                 card_category_counts=default_counts):
         # Global game vars:
         self.num_players = 2
         self.num_rounds = 3

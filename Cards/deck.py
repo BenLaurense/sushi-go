@@ -12,8 +12,10 @@ Deck class
 
 class Deck:
     # Making this inherit from List might be a much better way of doing this!
-    def __init__(self, card_types, category_counts=default_counts):
-        self.card_types = card_types  # List of card types
+    def __init__(self,
+                 card_type_dict: dict[CardCategory, list[CardType]],
+                 category_counts: dict[CardCategory, list[int]]):
+        self.card_type_dict = card_type_dict  # List of card types
         self.category_counts = category_counts
         self.cards = []  # This stores the INSTANTIATED card objects
 
@@ -28,7 +30,8 @@ class Deck:
     """
     Build the deck from the chosen CardTypes and Counts
     """
-    def build_deck(self, round):
+    def build_deck(self,
+                   round: int):
         # Takes the cardtypes and constructs a deck. Special rule for desserts
         self.cards = []
         for card_type in self.card_types:
@@ -41,6 +44,10 @@ class Deck:
             self.cards += cards
 
         self.shuffle()
+        return
+
+    def build_deck_2(self, round:int):
+
         return
 
     """
@@ -69,3 +76,16 @@ class Deck:
             hand = Hand()
             hand.cards = self.draw(num_cards_per_hand)
         return hands
+
+
+# """
+# Helper methods
+# """
+#
+#
+# def unpack_card_types(card_type_dict: dict[CardCategory, list[CardType]]):
+#     # This should be a common operation
+#     card_types = []
+#     for _, value in card_type_dict.items():
+#         card_types += value
+#     return card_types
