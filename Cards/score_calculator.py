@@ -1,14 +1,17 @@
-from Game.hand import PlayedCards
-from card_base import CardType, CardBase
+from Game.hand import *
+from card_base import *
 
 """
 Method for calculating score for a given card specific_type 
- - Takes in full gameboard?
+(ths could do with a refactor)
+ - Takes in CardType to be scored
+ - Tales in PlayedCards of the scoring player
+ - Needs to take in more stuff!
 """
 
 
-# This could do with a refactor
-def score_cards(card_type: CardType, played_cards: PlayedCards):
+def score_cards(card_type: CardType,
+                played_cards: PlayedCards) -> int:
     score = 0
     match card_type:
         case CardType.nigiri:

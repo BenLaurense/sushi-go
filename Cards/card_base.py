@@ -4,7 +4,6 @@ from enum import Enum
 Base class for card objects. A card object stores:
  - The CardType of the card
  - The CardCategory fo the card
- - The ScoringRule?
 """
 
 
@@ -31,9 +30,6 @@ class CardType(Enum):
     # Dessert card types
     pudding = 10
     ice_cream = 11
-
-
-dessert_types = [CardType.pudding, CardType.ice_cream]
 
 
 class CardBase:

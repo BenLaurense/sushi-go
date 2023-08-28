@@ -1,8 +1,6 @@
-from Cards.card_base import CardCategory, CardType, dessert_types
-from game_parameters import default_counts
-from hand import Hand, PlayedCards
-from Cards.deck import Deck
-from Cards.score_calculator import score_cards
+from game_parameters import *
+from Cards.deck import *
+from Cards.score_calculator import *
 from numpy import argmax
 
 
@@ -13,17 +11,16 @@ Gameboard class - object which tracks game global variables, and has methods for
 
 class Gameboard:
     def __init__(self,
-                 card_types: dict[CardCategory, list[CardType]],
-                 card_category_counts=default_counts):
+                 card_type_dict: dict[CardCategory, list[CardType]],
+                 card_category_counts: dict[CardCategory, list[int]]) -> None:
         # Global game vars:
         self.num_players = 2
         self.num_rounds = 3
-        self.card_types = card_types
+        self.card_type_dict = card_type_dict
 
         # Internal vars:
-        self.deck = Deck(card_types, card_category_counts)  # Should be Deck object with DEFAULT PARAMS
-        self.hands = [Hand()]*self.num_players   # List of hand objects
-        self.played_cards = [PlayedCards()]*self.num_players    # List of board objects
+        self.deck = Deck(card_type_dict, card_category_counts)  # Should be Deck object with DEFAULT PARAMS
+        self.hands, self.played_cards = [Hand()]*self.num_players, [PlayedCards()]*self.num_players
 
         self.num_cards_remaining = len(self.deck.cards)
 
@@ -33,12 +30,12 @@ class Gameboard:
     """
     Game loop
     """
-    def game_loop(self):
+    def game_loop(self) -> None:
         print('Starting game of {} rounds'.format(self.num_rounds))
-        for round in range(self.num_rounds):
-            scores = self.play_round(round)
+        for round_num in range(self.num_rounds):
+            scores = self.play_round(round_num)
 
-        # Final round has special scoring, but this is done withing play_round
+        # Final round_num has special scoring, but this is done withing play_round
 
         # End the game:
         print('Final scores are {}'.format(scores))
@@ -57,32 +54,33 @@ class Gameboard:
     """
     Functions for playing rounds/turns within that round
     """
-    def play_round(self, round: int):
+    def play_round(self,
+                   round_num: int) -> list[int]:
         # Plays round, calcs scores, and resets deck at the end
-        if round < self.num_rounds - 1:
-            print('Round {} starting'.format(round))
+        if round_num < self.num_rounds - 1:
+            print('Round {} starting'.format(round_num))
         else:
-            print('Round {} starting. Desserts will count after this round'.format(round))
+            print('Round {} starting. Desserts will count after this round'.format(round_num))
 
         # Loop through turns within the round
         while self.num_cards_remaining > 0:
             self.play_turn()
 
         # Show scores:
-        include_dessert = (round == self.num_rounds - 1)
+        include_dessert = (round_num == self.num_rounds - 1)
         scores = self.calc_scores(include_dessert)
         print('Scores are {}'.format(scores))
 
         # End of round:
         # Reset the board (and consider desserts):
-        self.deck.reset(round)
+        self.deck.reset(round_num)
         for played_cards in self.played_cards:
             played_cards.reset()
 
-        print('Round {} over'.format(round))
+        print('Round {} over'.format(round_num))
         return scores
 
-    def play_turn(self):
+    def play_turn(self) -> None:
         # Collects player input for their round and changes gameboard accordingly
         # Show info:
         self.show_hands()
@@ -117,20 +115,31 @@ class Gameboard:
     """
     Functions for calculating score
     """
-    def calc_scores(self, include_dessert=False):
+    # def calc_scores(self, include_dessert=False) -> list[int]:
+    #     scores = []
+    #     for player in range(self.num_players):
+    #         score = 0
+    #         for card_type in self.card_type_dict:
+    #             # Score for dessert is only counted in the final round
+    #             if card_type not in dessert_types or include_dessert:
+    #                 # Get corresponding card variety
+    #                 score += score_cards(card_type, self.played_cards[player])
+    #         scores.append(score)
+    #     return scores
+    def calc_scores(self,
+                    include_dessert=False) -> list[int]:
         scores = []
         for player in range(self.num_players):
             score = 0
-            for card_type in self.card_types:
-                # Score for dessert is only counted in the final round
-                if card_type not in dessert_types or include_dessert:
-                    # Get corresponding card variety
-                    score += score_cards(card_type, self.played_cards[player])
-            scores.append(score)
+            for category, card_types in self.card_type_dict.items():
+                if category != CardCategory.dessert or include_dessert:
+                    for card_type in card_types:
+                        score += score_cards(card_type, self.played_cards[player])
         return scores
 
     """
     Functions for showing info
+     - These should probably be factored over the objects themselves
     """
     def show_hands(self):
         for player in range(self.num_players):

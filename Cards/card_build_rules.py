@@ -1,18 +1,19 @@
-from card_base import CardCategory, CardType
-from Nigiri.nigiri import Nigiri, NigiriType
+from Nigiri.nigiri import *
 
 """
 Method that constructs cards based on their specific_type and count
-Might want this to be able to take in a config of build rules
+(Might want this to be able to take in a config of build rules)
+ - Each case must ALWAYS spit out exactly category_count cards
 """
 
 
-def build_cards(card_type: CardType, category_count: int):
+def build_cards(card_type: CardType,
+                category_count: int) -> list[CardBase]:
     match card_type:
         case CardType.nigiri:
-            # Return a list of cards of the correct format
-            # For nigiri, standardised format
-            standard_unit = [Nigiri(NigiriType.egg), Nigiri(NigiriType.salmon), Nigiri(NigiriType.squid)]
-            return (category_count // 3) * standard_unit
+            scaling = category_count // 3
+            return (category_count - 2*scaling)*[Nigiri(NigiriType.egg)] \
+                + scaling*[Nigiri(NigiriType.salmon), Nigiri(NigiriType.squid)]
+
         case _:
             raise Exception("No build rule for the specified CardType!")

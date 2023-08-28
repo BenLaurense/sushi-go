@@ -1,4 +1,4 @@
-from Cards.card_base import CardType, dessert_types
+from Cards.card_base import *
 
 """
 Classes for storing a hand and a played board
@@ -6,7 +6,7 @@ Classes for storing a hand and a played board
 
 
 class Hand:
-    # Subclass list?
+    # This might be better subclassing list
     def __init__(self):
         self.cards = []
         return
@@ -14,7 +14,6 @@ class Hand:
 
 class PlayedCards:
     def __init__(self):
-        # Card objects IN ORDER
         self.cards = []
         return
 
@@ -23,3 +22,4 @@ class PlayedCards:
         for card in self.cards:
             if card.CardType not in dessert_types:
                 self.cards.remove(card)
+        return
