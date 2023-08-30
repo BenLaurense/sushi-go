@@ -22,7 +22,7 @@ class Gameboard:
 
         # Internal vars:
         self.deck = Deck(card_type_dict, card_category_counts)  # Should be Deck object with DEFAULT PARAMS
-        self.hands, self.played_cards = [Hand()]*self.num_players, [PlayedCards()]*self.num_players
+        self.hands, self.played_cards = self.deck.deal_hands(self.num_players, 2), [PlayedCards()]*self.num_players
 
         self.num_cards_remaining = len(self.deck.cards) # recalc this?
 
@@ -134,7 +134,8 @@ class Gameboard:
     #                     score += score_cards(card_type, self.played_cards[player])
     #     return scores
 
-    def calc_scores(self):
+    def calc_scores(self,
+                    include_dessert=False) -> list[int]:
         # Precompute some statistics?
         def played_cards_counts(played_cards):
             # Spit out one of those special record classes I need to make?
