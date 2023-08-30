@@ -147,11 +147,12 @@ class Gameboard:
             # Or an array?
             out = []
             for player_played_cards in played_cards:
-                type_counts = Counter(player_played_cards)
+                type_counts = Counter(player_played_cards.cards)
                 out.append(type_counts)
             return out
 
         stat1 = played_cards_counts(self.played_cards)
+        print(stat1)
 
         # Main loop
         scores = []
