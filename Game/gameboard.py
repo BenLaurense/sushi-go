@@ -1,6 +1,5 @@
 from game_parameters import *
 from Cards.deck import *
-from Cards.score_calculator import *
 from numpy import argmax
 from collections import Counter
 
@@ -136,6 +135,8 @@ class Gameboard:
 
     def calc_scores(self,
                     include_dessert=False) -> list[int]:
+        from Cards.score_calculator import score_cards # Circular import avoiding
+
         # Precompute some statistics?
         def played_cards_counts(played_cards):
             # Spit out one of those special record classes I need to make?

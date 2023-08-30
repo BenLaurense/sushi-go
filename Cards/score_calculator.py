@@ -1,6 +1,5 @@
-from Game.hand import *
-from card_base import *
 from Game.gameboard import Gameboard
+from card_base import *
 
 """
 Method for calculating score for a given card specific_type 
