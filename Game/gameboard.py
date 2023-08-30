@@ -101,7 +101,8 @@ class Gameboard:
         # Reveal and execute moves:
         for player in range(self.num_players):
             played_card = self.hands[player].cards[moves[player]]
-            print('Player {} played {}'.format(player + 1, played_card))
+            print('Player {} played {} with specific type {}'
+                  .format(player + 1, played_card, played_card.specific_type))
             # Trigger any special card effects?
             self.hands[player].cards.remove(played_card)
             self.played_cards[player].cards.append(played_card)
@@ -165,7 +166,7 @@ class Gameboard:
     """
     def show_hands(self):
         for player in range(self.num_players):
-            print('Player {}:'.format(player), self.hands[player].cards)
+            print('Player {}:'.format(player + 1), self.hands[player].cards)
         return
 
     def show_played_cards(self):
