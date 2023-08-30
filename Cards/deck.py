@@ -38,7 +38,7 @@ class Deck:
         for category, card_types in self.card_type_dict.items():
             if category != CardCategory.dessert:
                 for card_type in card_types:
-                    count = self.category_counts[category]
+                    count = self.category_counts[category][round_number]
 
                     print("outer", card_type, count)
                     cards = build_cards(card_type, count)   # Error disable
