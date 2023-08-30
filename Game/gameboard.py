@@ -16,14 +16,17 @@ class Gameboard:
         # Global game vars:
         self.num_players = 2
         self.num_rounds = 3
+        self.hand_size = 2
+
         self.card_type_dict = card_type_dict # Maybe not needed!
         self.card_types = unpack_card_types(card_type_dict)
 
         # Internal vars:
         self.deck = Deck(card_type_dict, card_category_counts)  # Should be Deck object with DEFAULT PARAMS
-        self.hands, self.played_cards = self.deck.deal_hands(self.num_players, 2), [PlayedCards()]*self.num_players
+        self.hands = self.deck.deal_hands(self.num_players, self.hand_size)
+        self.played_cards = [PlayedCards()]*self.num_players
 
-        self.num_cards_remaining = len(self.deck.cards) # recalc this?
+        self.turn_timer = self.hand_size # recalc this?
 
         # Round-specific vars:
         return
@@ -64,7 +67,7 @@ class Gameboard:
             print('Round {} starting. Desserts will count after this round'.format(round_num))
 
         # Loop through turns within the round
-        while self.num_cards_remaining > 0:
+        while self.turn_timer > 0:
             self.play_turn()
 
         # Show scores:
@@ -75,8 +78,10 @@ class Gameboard:
         # End of round:
         # Reset the board (and consider desserts):
         self.deck.reset(round_num)
+        self.hands = self.deck.deal_hands(self.num_players, self.hand_size)
         for played_cards in self.played_cards:
             played_cards.reset()
+        self.turn_timer = self.hand_size
 
         print('Round {} over'.format(round_num))
         return scores
@@ -90,24 +95,22 @@ class Gameboard:
         # Get player inputs:
         moves = []
         for player in range(self.num_players):
-            move = 1000  # Arbitrary large number
-            while move > self.num_cards_remaining:
-                move = input('Enter valid move')
+            move = input("enter valid move") # Integer index for now
             moves.append(move)
 
         # Reveal and execute moves:
         for player in range(self.num_players):
-            print('Player {} played {}'.format(player + 1, self.hands[player]))
+            played_card = self.hands[player].cards[moves[player]]
+            print('Player {} played {}'.format(player + 1, played_card))
             # Trigger any special card effects?
-            move = moves[player]
-            played_card = self.hands[player].cards.pop(move)
+            self.hands[player].cards.remove(played_card)
             self.played_cards[player].cards.append(played_card)
 
         # Perform special effects according to execution order
         ### Not needed yet
 
         # Increment turn timer:
-        self.num_cards_remaining -= 1
+        self.turn_timer -= 1
 
         # Cycle the hands:
         self.hands = cycle_hands(self.hands)

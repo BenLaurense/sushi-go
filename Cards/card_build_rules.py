@@ -3,7 +3,7 @@ from Nigiri.nigiri import *
 """
 Method that constructs cards based on their specific_type and count
 (Might want this to be able to take in a config of build rules)
- - Each case must ALWAYS spit out exactly category_count cards
+ - Each case must ALWAYS spit out EXACTLY category_count cards
 """
 
 

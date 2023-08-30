@@ -39,9 +39,7 @@ class Deck:
             if category != CardCategory.dessert:
                 for card_type in card_types:
                     count = self.category_counts[category][round_number - 1]
-
-                    print("outer", card_type, count)
-                    cards = build_cards(card_type, count)   # Error disable
+                    cards = build_cards(card_type, count)
                     self.cards += cards
             else:
                 # Dessert cards have changing amounts per round

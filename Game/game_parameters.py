@@ -16,7 +16,7 @@ default_counts = {CardCategory.nigiri: [12],
                   CardCategory.dessert: [5, 3, 2]}
 
 test_card_types = {CardCategory.nigiri: [CardType.nigiri]}
-test_counts = {CardCategory.nigiri: [3],
+test_counts = {CardCategory.nigiri: [10],
                CardCategory.rolls: [0],
                CardCategory.appetizers: [0],
                CardCategory.special: [0],
