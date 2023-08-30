@@ -95,7 +95,7 @@ class Gameboard:
         # Get player inputs:
         moves = []
         for player in range(self.num_players):
-            move = input("enter valid move") # Integer index for now
+            move = input('Enter valid move index') # Integer index for now
             moves.append(move)
 
         # Reveal and execute moves:
@@ -165,12 +165,12 @@ class Gameboard:
     """
     def show_hands(self):
         for player in range(self.num_players):
-            print('Player {}:'.format(player), self.hands[player])
+            print('Player {}:'.format(player), self.hands[player].cards)
         return
 
     def show_played_cards(self):
         for player in range(self.num_players):
-            print('Player {}:'.format(player), self.played_cards[player])
+            print('Player {}:'.format(player), self.played_cards[player].cards)
         return
 
 
