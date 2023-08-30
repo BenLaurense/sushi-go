@@ -68,15 +68,21 @@ class Deck:
     def draw(self,
              num_cards: int) -> list[CardBase]:
         # Check that this doesn't cause issues
-        drawn_cards = self.cards[-num_cards:]
-        del self.cards[-num_cards:]
-        return drawn_cards
+        if num_cards > len(self.cards):
+            raise Exception("There are too few cards left in the deck for drawing!")
+        else:
+            drawn_cards = self.cards[-num_cards:]
+            del self.cards[-num_cards:]
+            return drawn_cards
 
     def deal_hands(self,
                    num_hands: int,
-                   num_cards_per_hand: int) -> list[CardBase]:
-        hands = []
-        for i in range(num_hands):
-            hand = Hand()
-            hand.cards = self.draw(num_cards_per_hand)
-        return hands
+                   num_cards_per_hand: int) -> list[Hand]:
+        if num_hands*num_cards_per_hand > len(self.cards):
+            raise Exception("There are too few cards left in the deck to deal!")
+        else:
+            hands = []
+            for i in range(num_hands):
+                hand = Hand(self.draw(num_cards_per_hand))
+                hands.append(hand)
+            return hands
