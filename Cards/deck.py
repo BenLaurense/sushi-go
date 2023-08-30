@@ -25,6 +25,7 @@ class Deck:
     def reset(self,
               round_number: int):
         self.build_deck(round_number)
+        self.shuffle()
         return
 
     """
@@ -57,9 +58,10 @@ class Deck:
         random.shuffle(self.cards)
         return
 
-    def append(self,
-               cards: list[CardBase]) -> None:
+    def append_and_shuffle(self,
+                           cards: list[CardBase]) -> None:
         self.cards += cards
+        self.shuffle()
         return
 
     """
@@ -67,7 +69,6 @@ class Deck:
     """
     def draw(self,
              num_cards: int) -> list[CardBase]:
-        # Check that this doesn't cause issues
         if num_cards > len(self.cards):
             raise Exception("There are too few cards left in the deck for drawing!")
         else:
