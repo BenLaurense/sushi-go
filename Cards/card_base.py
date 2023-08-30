@@ -52,7 +52,7 @@ class CardType(Enum):
     pudding = 23
 
 
-card_type_dict = {CardCategory.nigiri: [CardType.nigiri],
+card_enum_dict = {CardCategory.nigiri: [CardType.nigiri],
                   CardCategory.rolls: [CardType.maki, CardType.temaki, CardType.uramaki],
                   CardCategory.appetizers: [CardType.dumpling, CardType.edamame, CardType.eel,
                                             CardType.miso, CardType.onigiri, CardType.sashimi,

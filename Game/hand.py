@@ -24,6 +24,6 @@ class PlayedCards:
     def reset(self):
         # Resets the hand, leaving desserts!
         for card in self.cards:
-            if card.CardType not in card_type_dict[CardCategory.dessert]:
+            if card.CardType not in card_enum_dict[CardCategory.dessert]:
                 self.cards.remove(card)
         return

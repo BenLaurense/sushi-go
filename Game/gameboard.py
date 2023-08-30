@@ -2,6 +2,7 @@ from game_parameters import *
 from Cards.deck import *
 from Cards.score_calculator import *
 from numpy import argmax
+from collections import Counter
 
 
 """
@@ -16,13 +17,14 @@ class Gameboard:
         # Global game vars:
         self.num_players = 2
         self.num_rounds = 3
-        self.card_type_dict = card_type_dict
+        self.card_type_dict = card_type_dict # Maybe not needed!
+        self.card_types = unpack_card_types(card_type_dict)
 
         # Internal vars:
         self.deck = Deck(card_type_dict, card_category_counts)  # Should be Deck object with DEFAULT PARAMS
         self.hands, self.played_cards = [Hand()]*self.num_players, [PlayedCards()]*self.num_players
 
-        self.num_cards_remaining = len(self.deck.cards)
+        self.num_cards_remaining = len(self.deck.cards) # recalc this?
 
         # Round-specific vars:
         return
@@ -115,15 +117,41 @@ class Gameboard:
     """
     Functions for calculating score
     """
-    def calc_scores(self,
-                    include_dessert=False) -> list[int]:
+    # This could do with a refactor. Suggestion: This functions requests basic statistics to be precomputed
+    # e.g. counts of each cardtype
+    # These are fed along with the whole Gameboard object into a scoring function
+    # This seems cleanest? Some of the scoring rules don't need this though.
+
+    # Precompute EVERYTHING? A partial score object that updates each turn?
+    # def calc_scores(self,
+    #                 include_dessert=False) -> list[int]:
+    #     scores = []
+    #     for player in range(self.num_players):
+    #         score = 0
+    #         for category, card_types in self.card_type_dict.items():
+    #             if category != CardCategory.dessert or include_dessert:
+    #                 for card_type in card_types:
+    #                     score += score_cards(card_type, self.played_cards[player])
+    #     return scores
+
+    def calc_scores(self):
+        # Precompute some statistics?
+        def played_cards_counts(played_cards):
+            # Spit out one of those special record classes I need to make?
+            # Or an array?
+            out = []
+            for player_played_cards in played_cards:
+                type_counts = Counter(player_played_cards)
+                out.append(type_counts)
+            return out
+
+        stat1 = played_cards_counts(self.played_cards)
+
+        # Main loop
         scores = []
         for player in range(self.num_players):
-            score = 0
-            for category, card_types in self.card_type_dict.items():
-                if category != CardCategory.dessert or include_dessert:
-                    for card_type in card_types:
-                        score += score_cards(card_type, self.played_cards[player])
+            for card_type in self.card_types:
+                scores[player] = score_cards(card_type, player, self, stat1[player])
         return scores
 
     """
