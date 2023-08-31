@@ -1,5 +1,5 @@
 from enum import Enum
-from Cards.card_base import CardBase, CardCategory, CardType
+from Cards.card_base import CardBase, CardType
 
 
 class NigiriType(Enum):
@@ -10,12 +10,9 @@ class NigiriType(Enum):
 
 
 class Nigiri(CardBase):
-    def __init__(self, nigiri_type: NigiriType):
-        super().__init__(CardType.nigiri)
-
-        # Specific variables
-        self.specific_type = nigiri_type
+    def __init__(self, specific_type: NigiriType):
+        super().__init__(CardType.nigiri, specific_type)
         return
 
     def __str__(self):
-        return '{} Nigiri'.format(self.specific_type)
+        return '{} Nigiri'.format(self.specific_type.name)

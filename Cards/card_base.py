@@ -65,8 +65,10 @@ card_enum_dict = {CardCategory.nigiri: [CardType.nigiri],
 
 class CardBase:
     def __init__(self,
-                 card_type: CardType):
+                 card_type: CardType,
+                 specific_type=None):
         self.card_type = card_type
+        self.specific_type = specific_type
         return
 
     def __str__(self):
