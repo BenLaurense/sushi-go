@@ -1,5 +1,5 @@
 from game_parameters import *
-from Cards.deck import *
+from Game.deck import *
 from numpy import argmax
 from collections import Counter
 

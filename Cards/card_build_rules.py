@@ -1,4 +1,4 @@
-from Nigiri.nigiri import *
+from Cards.Card_Objects.nigiri_objects import *
 
 """
 Method that constructs cards based on their specific_type and count
@@ -11,6 +11,7 @@ def build_cards(card_type: CardType,
                 category_count: int) -> list[CardBase]:
     match card_type:
         case CardType.nigiri:
+            # wrong it's 4 5 3
             scaling = category_count // 3
             return (category_count - 2*scaling)*[Nigiri(NigiriType.egg)] \
                 + scaling*[Nigiri(NigiriType.salmon), Nigiri(NigiriType.squid)]

@@ -1,4 +1,4 @@
-from Cards.card_base import *
+from Cards.Card_Objects.card_base import *
 
 """
 Classes for storing a hand and a played board

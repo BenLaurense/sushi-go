@@ -1,4 +1,4 @@
-from Cards.card_base import CardCategory, CardType
+from Cards.Card_Objects.card_base import CardCategory, CardType
 
 """
 Default Game parameters
