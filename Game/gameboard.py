@@ -1,8 +1,7 @@
-from game_parameters import *
-from Game.deck import *
-from numpy import argmax
 from collections import Counter
-
+from numpy import argmax
+from Game.deck import *
+from game_parameters import *
 
 """
 Gameboard class - object which tracks game global variables, and has methods for playing turns

@@ -1,6 +1,6 @@
-from Game.hand import *
-from card_build_rules import *
 import random
+from Cards.card_build_rules import build_cards
+from Game.hand import *
 
 """
 Deck class
@@ -43,6 +43,7 @@ class Deck:
                     self.cards += cards
             else:
                 # Dessert cards have changing amounts per round
+                # Ah. This might have to be fixed!!
                 for card_type in card_types:
                     count = self.category_counts[category][round_number - 1]
                     cards = build_cards(card_type, count)
