@@ -1,14 +1,9 @@
 from enum import Enum
 from Cards.card_base import CardBase, CardCategory, CardType
 
-"""
-Nigiri card specific_type - there is only one variety
-
-Scoring rule is simple!
-"""
-
 
 class NigiriType(Enum):
+    # This also represents the score of the nigiri
     egg = 1
     salmon = 2
     squid = 3
@@ -23,4 +18,4 @@ class Nigiri(CardBase):
         return
 
     def __str__(self):
-        return 'Nigiri'
+        return '{} Nigiri'.format(self.specific_type)
