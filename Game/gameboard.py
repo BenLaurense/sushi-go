@@ -1,7 +1,7 @@
-from collections import Counter
 from numpy import argmax
-from Game.deck import *
-from game_parameters import *
+from deck import Deck
+from hand import PlayedCards
+from game_parameters import CardCategory, CardType, unpack_card_types
 
 """
 Gameboard class - object which tracks game global variables, and has methods for playing turns
@@ -138,26 +138,9 @@ class Gameboard:
 
     def calc_scores(self,
                     include_dessert=False) -> list[int]:
-        from Cards.score_calculator import score_cards # Circular import avoiding
+        scores = [0]*self.num_players
 
-        # Precompute some statistics?
-        def played_cards_counts(played_cards):
-            # Spit out one of those special record classes I need to make?
-            # Or an array?
-            out = []
-            for player_played_cards in played_cards:
-                type_counts = Counter(player_played_cards.cards)
-                out.append(type_counts)
-            return out
-
-        stat1 = played_cards_counts(self.played_cards)
-        print(stat1)
-
-        # Main loop
-        scores = []
-        for player in range(self.num_players):
-            for card_type in self.card_types:
-                scores[player] = score_cards(card_type, player, self, stat1[player])
+        # Precalculate totals of all relevant cardtypes
         return scores
 
     """
@@ -166,7 +149,8 @@ class Gameboard:
     """
     def show_hands(self):
         for player in range(self.num_players):
-            print('Player {}:'.format(player + 1), self.hands[player].cards)
+            card_string_reps = list(map(lambda card: card.__str__, self.hands[player].cards))
+            print('Player {}:'.format(player + 1), card_string_reps)
         return
 
     def show_played_cards(self):
