@@ -12,7 +12,7 @@ class FruitType(Enum):
 
 
 class Fruit(CardBase):
-    def __init__(self, specific_type=FruitType):
+    def __init__(self, specific_type: FruitType):
         super().__init__(CardType.fruit, specific_type)
         return
 

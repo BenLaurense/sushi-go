@@ -1,7 +1,7 @@
 from numpy import argmax
-from deck import Deck
-from hand import PlayedCards
-from game_parameters import CardCategory, CardType, unpack_card_types
+from Cards.deck import Deck
+from Cards.hand import PlayedCards
+from Game.game_parameters import CardCategory, CardType, unpack_card_types
 
 """
 Gameboard class - object which tracks game global variables, and has methods for playing turns

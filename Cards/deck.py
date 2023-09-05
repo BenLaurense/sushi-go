@@ -1,8 +1,8 @@
 import random
-from game_parameters import CardCategory, CardType
+from Game.game_parameters import CardCategory, CardType
 from Cards.card_build_rules import build_cards
 from Cards.Card_Objects.card_base import CardBase
-from hand import Hand
+from Cards.hand import Hand
 
 """
 Deck class

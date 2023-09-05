@@ -1,7 +1,7 @@
-from Card_Objects.appetisers_objects import *
-from Card_Objects.desserts_objects import *
-from Card_Objects.nigiri_objects import *
-from Card_Objects.rolls_objects import *
+from Cards.Card_Objects.appetisers_objects import *
+from Cards.Card_Objects.desserts_objects import *
+from Cards.Card_Objects.nigiri_objects import *
+from Cards.Card_Objects.rolls_objects import *
 
 """
 Method that constructs cards based on their specific_type and count
@@ -46,7 +46,7 @@ def build_cards(card_type: CardType,
         # Desserts
         case CardType.fruit:
             return 2*[Fruit(FruitType.pp), Fruit(FruitType.mm), Fruit(FruitType.ww)] \
-                + 3*[Fruit(FruitType.pm), Fruit(FruitType.pw), Fruit(FruitType)]
+                + 3*[Fruit(FruitType.pm), Fruit(FruitType.pw), Fruit(FruitType.mw)]
         case CardType.green_tea_ice_cream:
             return 15*[GreenTeaIceCream()]
         case CardType.pudding:
