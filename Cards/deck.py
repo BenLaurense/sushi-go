@@ -1,7 +1,6 @@
 import random
-from Game.game_parameters import CardCategory, CardType
 from Cards.card_build_rules import build_cards
-from Cards.Card_Objects.card_base import CardBase
+from Cards.Card_Objects.card_base import CardBase, CardType, CardCategory
 from Cards.hand import Hand
 
 """

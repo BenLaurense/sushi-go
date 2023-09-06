@@ -1,7 +1,8 @@
 from numpy import argmax
+from Cards.Card_Objects.card_base import CardType, CardCategory
 from Cards.deck import Deck
 from Cards.hand import PlayedCards
-from Game.game_parameters import CardCategory, CardType, unpack_card_types
+from Game.game_parameters import unpack_card_types
 
 """
 Gameboard class - object which tracks game global variables, and has methods for playing turns
@@ -138,9 +139,25 @@ class Gameboard:
 
     def calc_scores(self,
                     include_dessert=False) -> list[int]:
+        # Current thoughts on how to factor this: have a scorekeeper object which tracks some variables
+        # Updated each round. This is appended to each round and recalculates vars
+        # Can be queried to expose the total scores
         scores = [0]*self.num_players
 
         # Precalculate totals of all relevant cardtypes
+        # This can be computationally improved with a Counter object (esp. in the ml version)
+        card_type_counts_list = []
+        for player in range(self.num_players):
+            card_type_counts = dict.fromkeys(self.card_types)
+            for card in self.played_cards[player].cards:
+                card_type_counts[card.card_type] += 1
+
+            card_type_counts_list.append(card_type_counts.copy())
+
+        # Actually calculate the scores
+        for card in self.card_types:
+            # Call the correct scoring function?
+            print(card)
         return scores
 
     """
