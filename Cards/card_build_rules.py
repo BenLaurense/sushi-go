@@ -1,21 +1,23 @@
-from Cards.Card_Objects.appetisers_objects import *
-from Cards.Card_Objects.desserts_objects import *
-from Cards.Card_Objects.nigiri_objects import *
-from Cards.Card_Objects.rolls_objects import *
+from Card_Objects.nigiri_objects import Nigiri, NigiriType
+from Card_Objects.rolls_objects import *
+from Card_Objects.appetisers_objects import *
+from Card_Objects.desserts_objects import *
 
 """
 Method that constructs cards based on their specific_type and count
 (Might want this to be able to take in a config of build rules)
 """
 
+# TODO: a lot of work to generalise this
 
-def build_cards(card_type: CardType,
-                category_count: int) -> list[CardBase]:
+
+def build_cards(card_type: CardType, category_count: int) -> list[CardBase]:
     # Re-enable different deck sizing!
     match card_type:
         # Nigiri
         case CardType.nigiri:
             return 4*[Nigiri(NigiriType.egg)] + 5*[Nigiri(NigiriType.salmon)] + 3*[Nigiri(NigiriType.squid)]
+
         # Rolls
         case CardType.maki:
             return 4*[Maki(MakiType.one)] + 5*[Maki(MakiType.two)] + 3*[Maki(MakiType.three)]
@@ -23,6 +25,7 @@ def build_cards(card_type: CardType,
             return 12*[Temaki()]
         case CardType.uramaki:
             return 4*[Uramaki(UramakiType.three), Uramaki(UramakiType.four), Uramaki(UramakiType.five)]
+
         # Appetisers
         case CardType.dumpling:
             return 8*[Dumpling()]
@@ -41,6 +44,7 @@ def build_cards(card_type: CardType,
             return 8*[Tempura()]
         case CardType.tofu:
             return 8*[Tofu()]
+
         # Specials
 
         # Desserts

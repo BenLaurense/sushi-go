@@ -1,7 +1,7 @@
 from numpy import argmax
-from Cards.Card_Objects.card_base import CardType, CardCategory
+from Cards.Card_Objects.card_base import CardBase, CardType, CardCategory
 from Cards.deck import Deck
-from Cards.hand import PlayedCards
+from Cards.hand import Hand, PlayedCards
 from Cards.score_calculator import score_cards
 from Game.game_parameters import unpack_card_types
 
@@ -13,7 +13,7 @@ Gameboard class - object which tracks game global variables, and has methods for
 class Gameboard:
     def __init__(self,
                  card_type_dict: dict[CardCategory, list[CardType]],
-                 card_category_counts: dict[CardCategory, list[int]]) -> None:
+                 card_category_counts: dict[CardCategory, list[int]]):
         # Global game vars:
         self.num_players = 2
         self.num_rounds = 3
@@ -101,12 +101,12 @@ class Gameboard:
 
         # Reveal and execute moves:
         for player in range(self.num_players):
-            played_card = self.hands[player].cards[moves[player]]
+            played_card = self.hands[player][moves[player]]
             print('Player {} played {} with specific type {}'
                   .format(player + 1, played_card, played_card.specific_type))
             # Trigger any special card effects?
-            self.hands[player].cards.remove(played_card)
-            self.played_cards[player].cards.append(played_card)
+            self.hands[player].remove(played_card)
+            self.played_cards[player].append(played_card)
 
         # Perform special effects according to execution order
         ### Not needed yet
@@ -150,7 +150,7 @@ class Gameboard:
         card_type_counts_list = []
         for player in range(self.num_players):
             card_type_counts = dict.fromkeys(self.card_types)
-            for card in self.played_cards[player].cards:
+            for card in self.played_cards[player]:
                 card_type_counts[card.card_type] += 1
 
             card_type_counts_list.append(card_type_counts.copy())
@@ -168,13 +168,13 @@ class Gameboard:
     """
     def show_hands(self):
         for player in range(self.num_players):
-            card_string_reps = list(map(lambda card: card.__str__, self.hands[player].cards))
+            card_string_reps = list(map(lambda card: card.__str__, self.hands[player]))
             print('Player {}:'.format(player + 1), card_string_reps)
         return
 
     def show_played_cards(self):
         for player in range(self.num_players):
-            print('Player {}:'.format(player + 1), self.played_cards[player].cards)
+            print('Player {}:'.format(player + 1), self.played_cards[player])
         return
 
 

@@ -1,13 +1,11 @@
 from enum import Enum
 from numpy import argmax
-from random import random
+import random
 
 
-# Testing
-if __name__ == '__main__':
-    print('lol')
-
-
+# Testing being done in a jupyter notebook instead
+# What is going on with this weird importing issue?!
+# Also, the strange match/case issue... Not really sure what's going on TBH
 """
 Base class for card objects. A card object stores:
  - The CardType of the card
@@ -339,47 +337,50 @@ Method that constructs cards based on their specific_type and count
 def build_cards(card_type: CardType,
                 category_count: int) -> list[CardBase]:
     # Re-enable different deck sizing!
-    match card_type:
-        # Nigiri
-        case CardType.nigiri:
-            return 4*[Nigiri(NigiriType.egg)] + 5*[Nigiri(NigiriType.salmon)] + 3*[Nigiri(NigiriType.squid)]
-        # Rolls
-        case CardType.maki:
-            return 4*[Maki(MakiType.one)] + 5*[Maki(MakiType.two)] + 3*[Maki(MakiType.three)]
-        case CardType.temaki:
-            return 12*[Temaki()]
-        case CardType.uramaki:
-            return 4*[Uramaki(UramakiType.three), Uramaki(UramakiType.four), Uramaki(UramakiType.five)]
-        # Appetisers
-        case CardType.dumpling:
-            return 8*[Dumpling()]
-        case CardType.edamame:
-            return 8*[Edamame()]
-        case CardType.eel:
-            return 8*[Eel()]
-        case CardType.miso:
-            return 8*[Miso()]
-        case CardType.onigiri:
-            return 2*[Onigiri(OnigiriType.triangle), Onigiri(OnigiriType.circle),
-                      Onigiri(OnigiriType.square), Onigiri(OnigiriType.rectangle)]
-        case CardType.sashimi:
-            return 8*[Sashimi()]
-        case CardType.tempura:
-            return 8*[Tempura()]
-        case CardType.tofu:
-            return 8*[Tofu()]
-        # Specials
+    if card_type == CardType.nigiri:
+        return 4 * [Nigiri(NigiriType.egg)] + 5 * [Nigiri(NigiriType.salmon)] + 3 * [Nigiri(NigiriType.squid)]
+    elif card_type == CardType.maki:
+        return 4 * [Maki(MakiType.one)] + 5 * [Maki(MakiType.two)] + 3 * [Maki(MakiType.three)]
+    else:
+        raise Exception("No build rule for the specified CardType!")
 
-        # Desserts
-        case CardType.fruit:
-            return 2*[Fruit(FruitType.pp), Fruit(FruitType.mm), Fruit(FruitType.ww)] \
-                + 3*[Fruit(FruitType.pm), Fruit(FruitType.pw), Fruit(FruitType)]
-        case CardType.green_tea_ice_cream:
-            return 15*[GreenTeaIceCream()]
-        case CardType.pudding:
-            return 15*[Pudding()]
-        case _:
-            raise Exception("No build rule for the specified CardType!")
+        # Rolls
+        # case CardType.maki:
+        #     return 4*[Maki(MakiType.one)] + 5*[Maki(MakiType.two)] + 3*[Maki(MakiType.three)]
+        # case CardType.temaki:
+        #     return 12*[Temaki()]
+        # case CardType.uramaki:
+        #     return 4*[Uramaki(UramakiType.three), Uramaki(UramakiType.four), Uramaki(UramakiType.five)]
+        # # Appetisers
+        # case CardType.dumpling:
+        #     return 8*[Dumpling()]
+        # case CardType.edamame:
+        #     return 8*[Edamame()]
+        # case CardType.eel:
+        #     return 8*[Eel()]
+        # case CardType.miso:
+        #     return 8*[Miso()]
+        # case CardType.onigiri:
+        #     return 2*[Onigiri(OnigiriType.triangle), Onigiri(OnigiriType.circle),
+        #               Onigiri(OnigiriType.square), Onigiri(OnigiriType.rectangle)]
+        # case CardType.sashimi:
+        #     return 8*[Sashimi()]
+        # case CardType.tempura:
+        #     return 8*[Tempura()]
+        # case CardType.tofu:
+        #     return 8*[Tofu()]
+        # # Specials
+        #
+        # # Desserts
+        # case CardType.fruit:
+        #     return 2*[Fruit(FruitType.pp), Fruit(FruitType.mm), Fruit(FruitType.ww)] \
+        #         + 3*[Fruit(FruitType.pm), Fruit(FruitType.pw), Fruit(FruitType.mw)]
+        # case CardType.green_tea_ice_cream:
+        #     return 15*[GreenTeaIceCream()]
+        # case CardType.pudding:
+        #     return 15*[Pudding()]
+        # case _:
+        #     raise Exception("No build rule for the specified CardType!")
 
 
 """
@@ -647,4 +648,15 @@ def cycle_hands(hands: list) -> list:
     hands.append(x)
     return hands
 
+
+# Testing
+if __name__ == '__main__':
+    test_card_types = {CardCategory.nigiri: [CardType.nigiri]}
+    test_counts = {CardCategory.nigiri: [10],
+                   CardCategory.rolls: [0],
+                   CardCategory.appetizers: [0],
+                   CardCategory.special: [0],
+                   CardCategory.dessert: [0, 0, 0]}
+    G = Gameboard(test_card_types, test_counts)
+    G.game_loop()
 

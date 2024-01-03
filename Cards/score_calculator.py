@@ -9,8 +9,14 @@ Method for calculating score for a given card specific_type
  - Takes in precomputed statistics
  - Needs to take in more stuff!
 ONLY TRIGGERS AT END OF ROUND!!
-For ML stuff, might need to use a Q-learner to learn the inter-turn scores
 """
+
+# TODO: implement this idea
+# Scoring object (maintains internal list of partial statistics)
+# Score method that scores
+# Decorator construction + calc method for triggering each scoring rule indexed by enum
+
+# A ton of auxiliary methods defining scoring for each card type
 
 
 def score_cards(card_type: CardType,
