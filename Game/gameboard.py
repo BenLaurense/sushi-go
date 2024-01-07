@@ -2,7 +2,6 @@ from numpy import argmax
 from Cards.Card_Objects.card_base import CardBase, CardType, CardCategory
 from Cards.deck import Deck
 from Cards.hand import Hand, PlayedCards
-from Cards.score_calculator import score_cards
 from Game.game_parameters import unpack_card_types
 
 """
@@ -158,8 +157,9 @@ class Gameboard:
         # Actually calculate the scores
         for player in range(self.num_players):
             for card_type in self.card_types:
+                break
                 # Call the correct scoring function?
-                score_cards(card_type, player, self, card_type_counts_list[player])
+                # score_cards(card_type, player, self, card_type_counts_list[player])
         return scores
 
     """
