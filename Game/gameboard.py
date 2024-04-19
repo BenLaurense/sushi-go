@@ -1,189 +1,168 @@
-from numpy import argmax
-from Cards.Card_Objects.card_base import CardBase, CardType, CardCategory
 from Cards.deck import Deck
-from Cards.hand import Hand, PlayedCards
-from Game.game_parameters import unpack_card_types
+from Cards.scorers import calculate_score
+from Game.game_parameters import *
+from numpy import argmax
+
 
 """
-Gameboard class - object which tracks game global variables, and has methods for playing turns
+Main Game class
 """
 
 
-class Gameboard:
-    def __init__(self,
-                 card_type_dict: dict[CardCategory, list[CardType]],
-                 card_category_counts: dict[CardCategory, list[int]]):
-        # Global game vars:
-        self.num_players = 2
-        self.num_rounds = 3
-        self.hand_size = 2
+class Game:
+    def __init__(self, card_counts: dict[Card, int]):
+        # Instance vars
+        self.card_counts = card_counts
+        self.card_types = get_card_types(card_counts)   # Precompute for speed
+        self.deck = Deck(card_counts)
+        self.hands: list[list[Card]] = self.deck.deal_hands(NUM_PLAYERS, HAND_SIZE)
+        self.played_cards: list[list[Card]] = [[] for _ in range(NUM_PLAYERS)]  # Lol
+        self.scores = [0]*NUM_PLAYERS
 
-        self.card_type_dict = card_type_dict # Maybe not needed!
-        self.card_types = unpack_card_types(card_type_dict)
+        # Counters
+        self.round = 0  # Round counter from 0 to 2
+        self.turn = 0   # Turn counter from 0 to hand_size
 
-        # Internal vars:
-        self.deck = Deck(card_type_dict, card_category_counts)  # Should be Deck object with DEFAULT PARAMS
-        self.hands = self.deck.deal_hands(self.num_players, self.hand_size)
-        self.played_cards = [PlayedCards()]*self.num_players
-
-        self.turn_timer = self.hand_size # recalc this?
-
-        # Round-specific vars:
+        # TODO: Refactor statistics computation
+        self.stats = {card_type: [0]*NUM_PLAYERS for card_type in self.card_types}
         return
 
     """
-    Game loop
+    Game loop stuff
     """
-    def game_loop(self) -> None:
-        print('Starting game of {} rounds'.format(self.num_rounds))
-        for round_num in range(self.num_rounds):
-            scores = self.play_round(round_num)
-
-        # Final round_num has special scoring, but this is done withing play_round
+    def game_loop(self):
+        """
+        Outer game loop
+        - Play rounds
+        - Reset scores, turn counter
+        - Game end condition
+        """
+        print('Starting game of {} rounds'.format(NUM_ROUNDS + 1))
+        for round_num in range(NUM_ROUNDS):
+            print('====================')
+            self.play_round(round_num)
 
         # End the game:
-        print('Final scores are {}'.format(scores))
-        winner = argmax(scores) + 1
+        print('FINAL SCORES ARE: {}'.format(self.scores))
+        winner = argmax(self.scores) + 1
         print('Winner is Player {}!'.format(winner))
+        self.round = 0
+        self.scores = [0]*NUM_PLAYERS
 
         play_again = input('Play another game? Y/N')
         while play_again not in ['Y', 'N']:
             play_again = input('Play another game? Y/N')
         if play_again == 'Y':
-            # Reset the gamestate
             exit('Implement me lol')
         else:
             exit('Game over')
 
-    """
-    Functions for playing rounds/turns within that round
-    """
-    def play_round(self,
-                   round_num: int) -> list[int]:
-        # Plays round, calcs scores, and resets deck at the end
-        if round_num < self.num_rounds - 1:
-            print('Round {} starting'.format(round_num))
-        else:
-            print('Round {} starting. Desserts will count after this round'.format(round_num))
-
-        # Loop through turns within the round
-        while self.turn_timer > 0:
+    def play_round(self, round_num: int):
+        print('Round {} starting'.format(round_num + 1))
+        while self.turn < HAND_SIZE:
+            print('====================')
             self.play_turn()
+        print('====================')
+        print('ROUND OVER')
 
-        # Show scores:
-        include_dessert = (round_num == self.num_rounds - 1)
-        scores = self.calc_scores(include_dessert)
-        print('Scores are {}'.format(scores))
+        # End of round
+        self.show_played_cards()
+        this_round_scores = calculate_score(self.card_types, NUM_PLAYERS, self.stats)
+        self.scores = list(map(lambda s, x: s + x, self.scores, this_round_scores))
+        print('SCORES FOR THIS ROUND: {}'.format(this_round_scores))
 
-        # End of round:
-        # Reset the board (and consider desserts):
-        self.deck.reset(round_num)
-        self.hands = self.deck.deal_hands(self.num_players, self.hand_size)
-        for played_cards in self.played_cards:
-            played_cards.reset()
-        self.turn_timer = self.hand_size
+        # Reset game
+        self.deck.reset()
+        self.hands = self.deck.deal_hands(NUM_PLAYERS, HAND_SIZE)
+        self.played_cards = [[] for _ in range(NUM_PLAYERS)]
+        self.stats = {card_type: [0]*NUM_PLAYERS for card_type in self.card_types}
+        self.turn = 0
 
-        print('Round {} over'.format(round_num))
-        return scores
+        self.round += 1
+        return
 
-    def play_turn(self) -> None:
-        # Collects player input for their round and changes gameboard accordingly
-        # Show info:
+    def play_turn(self):
         self.show_hands()
         self.show_played_cards()
 
-        # Get player inputs:
-        moves = []
-        for player in range(self.num_players):
-            move = int(input('Enter valid move index')) # Integer index for now
-            moves.append(move)
-
-        # Reveal and execute moves:
-        for player in range(self.num_players):
-            played_card = self.hands[player][moves[player]]
-            print('Player {} played {} with specific type {}'
-                  .format(player + 1, played_card, played_card.specific_type))
-            # Trigger any special card effects?
+        # TODO: Update this when game env is made
+        this_turn = []
+        for player in range(NUM_PLAYERS):
+            move = int(input('Enter valid move index:'))  # Integer index for now
+            played_card = self.hands[player][move]
+            this_turn.append(played_card)
             self.hands[player].remove(played_card)
             self.played_cards[player].append(played_card)
 
-        # Perform special effects according to execution order
-        ### Not needed yet
+            self.precompute_stats(player, played_card)
 
-        # Increment turn timer:
-        self.turn_timer -= 1
+        # Reveal and execute moves:
+        for player in range(NUM_PLAYERS):
+            print('Player {} played {} with specific type {}'
+                  .format(player + 1, this_turn[player].get_type().name, this_turn[player].name))
+            # Trigger any special card effects
 
-        # Cycle the hands:
-        self.hands = cycle_hands(self.hands)
+        # End of turn:
+        self.cycle_hands()
+        print('STATS:', self.stats)  # Debugging
+
+        self.turn += 1
         return
 
     """
-    Functions for calculating score
+    Stats computation
     """
-    # This could do with a refactor. Suggestion: This functions requests basic statistics to be precomputed
-    # e.g. counts of each cardtype
-    # These are fed along with the whole Gameboard object into a scoring function
-    # This seems cleanest? Some of the scoring rules don't need this though.
+    def precompute_stats(self, player: int, played_card: Card):
+        additive = {
+            Card.egg_nigiri: 1,
+            Card.salmon_nigiri: 2,
+            Card.squid_nigiri: 3,
+            Card.one_maki: 1,
+            Card.two_maki: 2,
+            Card.three_maki: 3,
+            Card.temaki: 1,
+            # Card.one_uramaki: 1,
+            # Card.two_uramaki: 2,
+            # Card.three_uramaki: 3,
+            # Card.four_uramaki: 4,
+            # Card.five_uramaki: 5,
+            Card.dumpling: 1,
+            Card.eel: 1,
+            # Onigiri encoding
+            Card.circle_onigiri: 1,
+            Card.triangle_onigiri: 10,
+            Card.square_onigiri: 100,
+            Card.rectangle_onigiri: 1000,
+            Card.sashimi: 1,
+            Card.tempura: 1,
+            Card.tofu: 1,
+        }
 
-    # Precompute EVERYTHING? A partial score object that updates each turn?
-    # def calc_scores(self,
-    #                 include_dessert=False) -> list[int]:
-    #     scores = []
-    #     for player in range(self.num_players):
-    #         score = 0
-    #         for category, card_types in self.card_type_dict.items():
-    #             if category != CardCategory.dessert or include_dessert:
-    #                 for card_type in card_types:
-    #                     score += score_cards(card_type, self.played_cards[player])
-    #     return scores
-
-    def calc_scores(self,
-                    include_dessert=False) -> list[int]:
-        # Current thoughts on how to factor this: have a scorekeeper object which tracks some variables
-        # Updated each round. This is appended to each round and recalculates vars
-        # Can be queried to expose the total scores
-        scores = [0]*self.num_players
-
-        # Precalculate totals of all relevant cardtypes
-        # This can be computationally improved with a Counter object (esp. in the ml version)
-        card_type_counts_list = []
-        for player in range(self.num_players):
-            card_type_counts = dict.fromkeys(self.card_types)
-            for card in self.played_cards[player]:
-                card_type_counts[card.card_type] += 1
-
-            card_type_counts_list.append(card_type_counts.copy())
-
-        # Actually calculate the scores
-        for player in range(self.num_players):
-            for card_type in self.card_types:
-                break
-                # Call the correct scoring function?
-                # score_cards(card_type, player, self, card_type_counts_list[player])
-        return scores
+        self.stats[played_card.get_type()][player] += additive[played_card]
+        return
 
     """
-    Functions for showing info
-     - These should probably be factored over the objects themselves
+    Printing stuff
     """
     def show_hands(self):
-        for player in range(self.num_players):
-            card_string_reps = list(map(lambda card: card.__str__, self.hands[player]))
-            print('Player {}:'.format(player + 1), card_string_reps)
+        print('Hand:')
+        for player in range(NUM_PLAYERS):
+            nice_rep = list(map(lambda x: x.name, self.hands[player]))
+            print('Player {}:'.format(player + 1), nice_rep)
         return
 
     def show_played_cards(self):
-        for player in range(self.num_players):
-            print('Player {}:'.format(player + 1), self.played_cards[player])
+        print('Played:')
+        for player in range(NUM_PLAYERS):
+            nice_rep = list(map(lambda x: x.name, self.played_cards[player]))
+            print('Player {}:'.format(player + 1), nice_rep)
         return
 
+    """
+    Helpers
+    """
+    def cycle_hands(self):
+        x = self.hands.pop(0)
+        self.hands.append(x)
+        return
 
-"""
-Helper methods
-"""
-
-
-def cycle_hands(hands: list) -> list:
-    x = hands.pop(0)
-    hands.append(x)
-    return hands

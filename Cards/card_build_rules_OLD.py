@@ -1,7 +1,7 @@
-from Card_Objects.nigiri_objects import Nigiri, NigiriType
-from Card_Objects.rolls_objects import *
-from Card_Objects.appetisers_objects import *
-from Card_Objects.desserts_objects import *
+from Cards.Card_Objects_OLD.nigiri_objects import Nigiri, NigiriType
+from Cards.Card_Objects_OLD.rolls_objects import *
+from Cards.Card_Objects_OLD.appetisers_objects import *
+from Cards.Card_Objects_OLD.desserts_objects import *
 
 """
 Method that constructs cards based on their specific_type and count

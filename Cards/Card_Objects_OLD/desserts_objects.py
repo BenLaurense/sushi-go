@@ -1,5 +1,5 @@
 from enum import Enum
-from Cards.Card_Objects.card_base import CardBase, CardType
+from Cards.Card_Objects_OLD.card_base import CardBase, CardType
 
 
 class FruitType(Enum):

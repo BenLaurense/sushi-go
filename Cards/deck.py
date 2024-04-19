@@ -1,72 +1,47 @@
-import random
-from card_build_rules import build_cards
-from Card_Objects.card_base import CardBase, CardType, CardCategory
-from hand import Hand
+from Cards.cards import *
+from random import shuffle
+
 
 """
-Deck class
- - build_deck method calls card_builder to build collection of cards of each CardType
- - Contains methods for dealing, shuffling, appending cards
+Deck object and associated methods
 """
 
 
-class Deck(list[CardBase]):
-    def __init__(self,
-                 card_type_dict: dict[CardCategory, list[CardType]],
-                 category_counts: dict[CardCategory, list[int]]) -> None:
+class Deck(list[Card]):
+    """
+    Deck object
+    Stores list of Cards
+    """
+    def __init__(self, card_counts: dict[Card, int]):
         super().__init__()
+        self.card_counts = card_counts
 
-        self.card_type_dict = card_type_dict
-        self.category_counts = category_counts
-
-        # Builds deck:
-        self.reset(round_num=1)
+        self.reset()    # Initialise the deck
         return
 
-    def reset(self, round_num: int):
-        self.clear() # We clear here rather than before
-        self.build_deck(round_num)
-        random.shuffle(self)
+    def reset(self):
+        for card in self.card_counts:
+            self += self.card_counts[card] * [card]
+        shuffle(self)
         return
 
-    """
-    Build the deck from the chosen CardTypes and Counts
-    """
-    def build_deck(self, round_num: int):
-        for category, card_types in self.card_type_dict.items():
-            for card_type in card_types:
-
-                # Note we don't filter by desserts here!
-                count = self.category_counts[category][round_num - 1]
-                cards = build_cards(card_type, count)
-                self.__add__(cards)
-        return
-
-    """
-    Shuffling
-    """
-    def append_and_shuffle(self, cards: list[CardBase]):
-        self.__add__(cards)
-        random.shuffle(self)
-        return
-
-    """
-    Drawing and hand creation
-    """
-    def draw(self, num_cards: int) -> list[CardBase]:
-        if num_cards > len(self):
+    def draw(self, count: int) -> list[Card]:
+        if count > len(self):
             raise Exception("There are too few cards left in the deck for drawing!")
         else:
-            drawn_cards = self[-num_cards:]
-            del self[-num_cards:]
-            return drawn_cards
+            draw = self[-count:]
+            del self[-count:]
+            return draw
 
-    def deal_hands(self, num_hands: int, num_cards_per_hand: int) -> list[Hand]:
-        if num_hands*num_cards_per_hand > len(self):
+    def deal_hands(self, num_hands: int, cards_per_hand: int) -> list[list[Card]]:
+        if num_hands*cards_per_hand > len(self):
             raise Exception("There are too few cards left in the deck to deal!")
         else:
-            hands: list[Hand] = []
+            hands: list[list[Card]] = []
             for _ in range(num_hands):
-                hand = Hand(self.draw(num_cards_per_hand))
+                hand = self.draw(cards_per_hand)
                 hands.append(hand)
             return hands
+
+
+# TODO: deck build rules
