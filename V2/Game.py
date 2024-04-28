@@ -1,5 +1,6 @@
 from enum import Enum
 from random import shuffle
+from operator import add
 
 
 class Card(Enum):
@@ -198,6 +199,94 @@ class DeckFactory:
         return Deck(this_round_cards)
 
 
+def get_additive_total(card: Card) -> int:
+    additive_dict = {
+        Card.egg_nigiri: 1,
+        Card.salmon_nigiri: 2,
+        Card.squid_nigiri: 3,
+
+        Card.one_maki: 1,
+        Card.two_maki: 2,
+        Card.three_maki: 3,
+        Card.temaki: 1,
+
+        Card.eel: 1,
+        Card.tempura: 1,
+        Card.sashimi: 1,
+    }
+    return additive_dict[card]
+
+
+def maki_score(totals: list[int]):
+    distinct_totals = list(set(totals.copy()))
+    if len(distinct_totals) < 3:
+        distinct_totals += [-1] * (3 - len(distinct_totals))
+    distinct_totals.sort()
+    return [6*(t == distinct_totals[-1]) + 4*(t == distinct_totals[-2]) + 2*(t == distinct_totals[-3])
+            for t in totals] # Could do this with a mask!
+
+
+def temaki_score(totals: list[int]):
+    distinct_totals = list(set(totals.copy()))
+    max_total = max(distinct_totals)
+    min_total = min(distinct_totals)
+    return [4*(t == max_total - t == min_total) for t in totals]
+
+
+# Instantiated by the Game class. Cannot be instantiated otherwise?
+class ScoreComputer:
+    # Holds precomputed statistics and also computes score based off played cards
+    _totals: dict[CardType, list[int]]
+    _num_players: int
+    _card_types: list[CardType]
+
+    def __init__(self, num_players: int, card_types: list[CardType]):
+        self._num_players = num_players
+        self._card_types = card_types
+        self.reset_statistics()
+        return
+
+    def reset_statistics(self):
+        self._totals = {card_type: [0] * self._num_players for card_type in self._card_types}
+        return
+
+    def update_statistics(self, cards: list[Card]):
+        # For ADDITIVE statistics, compute:
+        for player in range(self._num_players):
+            card = cards[player]
+            self._totals[card.type()][player] += get_additive_total(card)
+
+        # Other special precomputed stats:
+        return
+
+    def _card_type_scores(self, card_type: CardType, totals: list[int]) -> list[int]:
+        match card_type:
+            case CardType.nigiri:
+                return totals
+
+            case CardType.maki:
+                return maki_score(totals)
+            case CardType.temaki:
+                return temaki_score(totals)
+
+            case CardType.eel:
+                return list(map(lambda x: -3 if x == 1 else 7, totals))
+            case CardType.tempura:
+                return list(map(lambda x: 5 * (x // 2), totals))
+            case CardType.sashimi:
+                return list(map(lambda x: 10 * (x // 3), totals))
+
+            case _:
+                raise Exception(f"Error in {self._card_type_scores}: invalid {Card} specified")
+
+    def compute_round_score(self) -> list[int]:
+        # Vectorises _card_type_score over card_type. Should be numpy
+        scores = [0] * self._num_players
+        for card_type in self._card_types:
+            scores = map(add, scores, self._card_type_scores(card_type, self._totals[card_type]))
+        return list(scores)
+
+
 class GameConfig:
     num_players: int
     num_rounds: int
@@ -213,8 +302,9 @@ class GameConfig:
 
 
 class Game:
-    _curr_round: int = 0
+    _curr_round: int
     _deckFactory: DeckFactory
+    _score_computer: ScoreComputer
 
     config: GameConfig
     deck: Deck
@@ -225,6 +315,7 @@ class Game:
     def __init__(self, config: GameConfig):
         self.config = config # Could do config loader syntax here. Loadable throughout the game
         self._deckFactory = DeckFactory(config.num_rounds, config.card_types)
+        self._score_computer = ScoreComputer(self.config.num_players, self.config.card_types)
 
         self._reset_game()
         self._game_loop()
@@ -232,7 +323,8 @@ class Game:
 
     def _reset_game(self):
         # Only thing that needs reset that isn't round-dependent is the scores
-        self.round_scores = [[0] * self.config.num_rounds] * self.config.num_players
+        self._curr_round = 0
+        self.round_scores = [[0] * self.config.num_players] * self.config.num_rounds
         return
 
     def _game_loop(self):
@@ -241,19 +333,27 @@ class Game:
 
             # Prepare this round
             self._prepare_round()
+            print(f'Playing round {self._curr_round + 1}')
             self._play_round()
 
             # Compute score for the round
+            self.round_scores[round] = self._score_computer.compute_round_score()
+            self.show_played_cards()
+            self.show_scores()
 
             self._curr_round += 1
+
         # Game end sequence
+        final_scores = [sum([r[i] for r in self.round_scores]) for i in range(self.config.num_players)]
+        print(final_scores)
         return
 
     def _prepare_round(self):
-        # Resets anything round-secific
+        # Resets anything round-specific
         self.deck = self._deckFactory.build_deck(self._curr_round)
         self.hands = self.deck.deal_hands(self.config.num_players, self.config.hand_size)
         self.played_cards = [[] for _ in range(self.config.num_players)]
+        self._score_computer.reset_statistics()
         return
 
     def _play_round(self):
@@ -264,35 +364,31 @@ class Game:
             self._play_turn()
         return
 
-    def _compute_round_scores(self, round: int):
-        return
-
     def get_player_input(self, player: int):
         move = int(input(f'Player {player + 1}: Enter valid move index:'))  # Integer index for now
         return move
 
     def _play_turn(self):
         # Collect moves:
-        this_turn = []
+        played_this_turn: list[Card] = []
         for player in range(self.config.num_players):
             move = self.get_player_input(player)
             played_card = self.hands[player].pop(move)
-            this_turn.append(played_card)
+            played_this_turn.append(played_card)
             self.played_cards[player].append(played_card)
+
+        self._score_computer.update_statistics(played_this_turn)
 
         # Reveal and execute moves:
         for player in range(self.config.num_players):
             print('Player {} played {} with specific type {}'
-                  .format(player + 1, this_turn[player].type().name, this_turn[player].name))
-            # Trigger any special card effects
+                  .format(player + 1, played_this_turn[player].type().name, played_this_turn[player].name))
+            # Trigger any special card effects...
 
         # End of turn:
         self.cycle_hands()
         return
 
-    """
-    Printing stuff
-    """
     def show_hands(self):
         print('Hand:')
         for player in range(self.config.num_players):
@@ -307,10 +403,13 @@ class Game:
             print('Player {}:'.format(player + 1), nice_rep)
         return
 
-    """
-    Helpers
-    """
+    def show_scores(self):
+        print('Scores:')
+        print(self.round_scores)
+        return
+
     def cycle_hands(self):
+        # There is a faster way of doing this by cycling indices instead!
         x = self.hands.pop(0)
         self.hands.append(x)
         return
